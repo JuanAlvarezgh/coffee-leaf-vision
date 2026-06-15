@@ -1,16 +1,3 @@
----
-title: CoffeeLeafVision
-emoji: 🌱
-colorFrom: green
-colorTo: yellow
-sdk: docker
-app_port: 7860
-pinned: false
-license: mit
-short_description: Clasificador de enfermedades en hojas de café con explicabilidad Grad-CAM
----
-
-<div align="center">
 
 # Coffee Leaf Vision
 
