@@ -47,19 +47,44 @@ with tab1:
     )
 
     uploaded = st.file_uploader("Imagen de hoja", type=["jpg", "jpeg", "png"])
+
+    EJEMPLO_PATH = SAMPLES_DIR / "ejemplo_roya.jpg"
+
     gradcam_method = st.selectbox(
         "Método de explicabilidad",
         ["gradcam", "gradcam++", "eigencam"],
         help="Grad-CAM clásico, su versión refinada (++), o EigenCAM (sin clase target)",
     )
 
+    # Si el usuario no sube nada, se usa una imagen de ejemplo ya cargada y se analiza
+    # automáticamente, para que cualquier visitante vea de inmediato cómo funciona.
+    imagen_bytes = None
+    imagen_nombre = None
+    imagen_tipo = None
+    usando_ejemplo = False
     if uploaded is not None:
+        imagen_bytes = uploaded.getvalue()
+        imagen_nombre = uploaded.name
+        imagen_tipo = uploaded.type
+    elif EJEMPLO_PATH.exists():
+        imagen_bytes = EJEMPLO_PATH.read_bytes()
+        imagen_nombre = EJEMPLO_PATH.name
+        imagen_tipo = "image/jpeg"
+        usando_ejemplo = True
+
+    if usando_ejemplo:
+        st.info(
+            "Mostrando un ejemplo precargado (roya del café). "
+            "Sube tu propia foto arriba para analizar la tuya."
+        )
+
+    if imagen_bytes is not None:
         col_img, col_result = st.columns([1, 1])
         with col_img:
-            st.image(uploaded, caption="Imagen original", use_column_width=True)
+            st.image(imagen_bytes, caption="Imagen original", use_column_width=True)
 
         with col_result, st.spinner("Evaluando..."):
-            files = {"file": (uploaded.name, uploaded.getvalue(), uploaded.type)}
+            files = {"file": (imagen_nombre, imagen_bytes, imagen_tipo)}
             try:
                 r = requests.post(
                     f"{API_URL}/api/v1/predict",
